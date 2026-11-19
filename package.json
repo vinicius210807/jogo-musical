@@ -1,0 +1,28 @@
+{
+  "name": "jogo-musical",
+  "version": "1.0.0",
+  "description": "Projeto acadêmico de desenvolvimento de um jogo 2D de ritmo e gerenciamento de carreira musical, inspirado em jogos musicais clássicos.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vinicius210807/jogo-musical.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vinicius210807/jogo-musical/issues"
+  },
+  "homepage": "https://github.com/vinicius210807/jogo-musical#readme",
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8"
+  }
+}
