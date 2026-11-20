@@ -8,8 +8,8 @@ import { COLORS, DEPTH, FONT_FAMILY, toCss } from '../config/constants.js';
 //  - hint: texto pequeno ao lado do rótulo (ex.: "EM BREVE") em itens selecionáveis.
 //
 // Opções: align ('center' | 'left'; em 'left', x é o início do texto), zoneWidth
-// (largura da área clicável), hintFontSize e onChange(index), chamado quando a
-// seleção muda (e uma vez no início).
+// (largura da área clicável), hintFontSize, depth (ordem de desenho) e onChange(index),
+// chamado quando a seleção muda (e uma vez no início).
 export default class MenuList {
     constructor(
         scene,
@@ -21,11 +21,13 @@ export default class MenuList {
             align = 'center',
             zoneWidth = 460,
             hintFontSize = 12,
+            depth = DEPTH.UI,
             onChange,
             items
         }
     ) {
         this.scene = scene;
+        this.depth = depth;
         this.items = items.map((item) => ({ enabled: true, ...item }));
         this.locked = false;
         this.selectedIndex = this.items.findIndex((item) => item.enabled);
@@ -45,7 +47,7 @@ export default class MenuList {
                 color: toCss(COLORS.MAGENTA)
             })
             .setOrigin(0.5)
-            .setDepth(DEPTH.UI);
+            .setDepth(this.depth);
 
         scene.tweens.add({
             targets: this.cursor,
@@ -68,7 +70,7 @@ export default class MenuList {
                 color: toCss(COLORS.WHITE)
             })
             .setOrigin(this.alignLeft ? 0 : 0.5, 0.5)
-            .setDepth(DEPTH.UI);
+            .setDepth(this.depth);
 
         if (!item.enabled) label.setColor(toCss(COLORS.GREY));
 
@@ -82,13 +84,14 @@ export default class MenuList {
                     color: toCss(COLORS.GREY)
                 })
                 .setOrigin(0, 0.5)
-                .setDepth(DEPTH.UI);
+                .setDepth(this.depth);
         }
 
         // Área clicável mais larga que o texto, para facilitar o mouse.
         const zoneX = this.alignLeft ? x - 28 + this.zoneWidth / 2 : x;
         const hitArea = this.scene.add
             .zone(zoneX, y, this.zoneWidth, this.fontSize + 24)
+            .setDepth(this.depth)
             .setInteractive({ useHandCursor: item.enabled });
 
         hitArea.on('pointerover', () => {

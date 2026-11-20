@@ -1,5 +1,55 @@
 # Diário de desenvolvimento
 
+## Minigame musical (GameScene) — primeira versão jogável
+
+**O que foi feito**
+
+- A opção TOCAR da garagem abre a `GameScene` com o fade padrão (`fadeToScene`). ESC volta à
+  garagem (também na tela de resultado). A carreira escolhida continua no `registry` e o músico
+  dela aparece no painel direito, pulando a cada tempo da música.
+- Quatro pistas (D, F, J, K), cada uma com sua cor; notas em pixel art descem até a linha de acerto,
+  destacada com faixa brilhante e receptores com a tecla de cada pista.
+- Julgamento: PERFECT (erro até 70 ms, 100 pts), GOOD (71 a 130 ms, 50 pts) e MISS (erro acima de
+  130 ms ou nota não acertada, 0 pts e quebra o combo). Apertar até 200 ms antes da nota conta como
+  tentativa (vira MISS se passar de 130 ms); mais cedo que isso o toque é ignorado.
+- Interface: pontuação, combo, maior combo, contagem de PERFECT/GOOD/MISS, avaliação em texto
+  ("PERFECT!", "GOOD!", "MISS") e efeitos: anel e faíscas no acerto, pista piscando e nota
+  escurecendo no erro. Contagem regressiva (PREPARE-SE, 3, 2, 1, VAI!) e barra de progresso.
+- Tela de resultado: pontuação, maior combo, PERFECT/GOOD/MISS, precisão e nota (S/A/B/C), com
+  JOGAR NOVAMENTE e VOLTAR À GARAGEM.
+- Dinheiro e fama NÃO são alterados pelo minigame (fica para a próxima etapa).
+
+**Sincronização**
+
+- `SongClock` mede o tempo da música (ms) com `performance.now()`; o tempo 0 é o primeiro tempo da
+  música e a contagem usa valores negativos. A posição de cada nota é calculada a cada quadro a partir
+  desse tempo, e o julgamento usa o `timeStamp` do evento de teclado (o instante real em que a tecla
+  foi apertada). Não há timers por nota, e a velocidade dos quadros não influencia o resultado.
+- As notas ficam em dados: `src/data/songs.js` descreve cada compasso com 16 passos (`'1...2...'`) e
+  `buildChart` converte para tempos em ms a partir do BPM (120 BPM na música de teste, 111 notas, 32 s).
+
+**Áudio provisório**
+
+- `SongAudio` sintetiza contagem, bateria e baixo com a Web Audio API (sem arquivos e sem direitos
+  autorais), agendados no relógio do áudio, mais um som por nota acertada (uma nota da escala por pista).
+- Preparado para uma faixa real: se a música tiver `audioKey` carregada no cache do Phaser, ela é tocada
+  no tempo 0 no lugar da trilha sintetizada (ainda não testado, pois não há arquivo no projeto).
+
+**Organização**
+
+- `src/scenes/GameScene.js` cena; `src/data/songs.js` música e notas.
+- `src/systems/JudgmentSystem.js` (julgamento), `ScoreSystem.js` (pontos e combo), `SongClock.js`,
+  `SongAudio.js`. Os três primeiros são lógica pura, sem Phaser.
+- `src/ui/Highway.js`, `RhythmHud.js`, `ResultsPanel.js`, `NoteSprites.js`, `HitEffects.js` componentes
+  novos. `Toast` ganhou opções (cor, tempos, "pop") e `MenuList` ganhou `depth`.
+
+**Limitações conhecidas**
+
+- Sem pausa: se a aba perder o foco, a música segue e as notas são perdidas.
+- Sem calibração de latência de áudio/entrada (há uma música só, e sem seleção de música).
+- A trilha sintetizada é simples; só uma música de teste.
+- Dinheiro, fama e progressão não são afetados pelo resultado.
+
 ## Garagem como ambiente principal (GarageScene)
 
 **O que foi feito**

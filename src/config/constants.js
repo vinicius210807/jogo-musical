@@ -11,7 +11,8 @@ export const FONT_FAMILY = `"${FONT_NAME}", "Courier New", Courier, monospace`;
 export const SCENE_KEYS = {
     MENU: 'MenuScene',
     CAREER: 'CareerScene',
-    GARAGE: 'GarageScene'
+    GARAGE: 'GarageScene',
+    GAME: 'GameScene'
 };
 
 // Paleta retrô curta (valores numéricos para formas do Phaser).
@@ -26,6 +27,24 @@ export const COLORS = {
     GREY: 0x6b6b80,
     // Cores das faixas de notas, no estilo dos jogos de guitarra.
     LANES: [0x35d56a, 0xff4d4d, 0xffd23f, 0x3d8bff, 0xff9a3d]
+};
+
+// Minigame de ritmo: teclas e cores das 4 pistas, posição da linha de acerto e
+// quanto tempo (ms) uma nota leva do topo da tela até a linha.
+export const RHYTHM = {
+    LANE_KEYS: ['D', 'F', 'J', 'K'],
+    LANE_COLORS: COLORS.LANES.slice(0, 4),
+    HIT_Y: 440,
+    SPAWN_Y: -30,
+    APPROACH_MS: 1700,
+    LEAD_IN_BEATS: 4
+};
+
+// Cor de cada avaliação (as chaves são os nomes usados em JudgmentSystem).
+export const JUDGMENT_COLORS = {
+    PERFECT: COLORS.YELLOW,
+    GOOD: 0x35d56a,
+    MISS: 0xff4d4d
 };
 
 // Converte 0xRRGGBB para '#rrggbb' (textos do Phaser usam string CSS).

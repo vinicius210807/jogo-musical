@@ -44,6 +44,16 @@ function createPainter(ctx) {
     return { rect, ellipse, line };
 }
 
+// Mistura duas cores 0xRRGGBB: t = 0 devolve `a`, t = 1 devolve `b`.
+export function mixColors(a, b, t) {
+    const channel = (shift) => {
+        const from = (a >> shift) & 0xff;
+        const to = (b >> shift) & 0xff;
+        return Math.round(from + (to - from) * t);
+    };
+    return (channel(16) << 16) | (channel(8) << 8) | channel(0);
+}
+
 // Cria (uma única vez) uma textura de canvas desenhada pela função `draw(painter)`.
 export function createPixelTexture(scene, key, width, height, draw) {
     if (scene.textures.exists(key)) return;

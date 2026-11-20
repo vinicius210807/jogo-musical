@@ -1,12 +1,14 @@
-// Opções do menu da garagem. Nesta etapa só a interface existe: nenhuma delas
-// executa uma função de verdade (`message` é o aviso mostrado ao selecionar).
+import { SCENE_KEYS } from '../config/constants.js';
+
+// Opções do menu da garagem. `target` é a cena que a opção abre; sem ele, a opção ainda
+// não existe e só mostra o aviso `message` (EQUIPAMENTOS, CONTRATAR e STATUS).
 export const GARAGE_OPTIONS = [
     {
         id: 'play',
         label: 'TOCAR',
         soon: false,
-        description: 'Suba no palco, toque as músicas e ganhe dinheiro e fama.',
-        message: 'O MINIGAME CHEGA EM BREVE!'
+        description: 'Suba no palco e toque no ritmo. Acerte as notas para fazer pontos.',
+        target: SCENE_KEYS.GAME
     },
     {
         id: 'equipment',
