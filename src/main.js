@@ -1,32 +1,15 @@
-
 import Phaser from 'phaser';
-
-class TestScene extends Phaser.Scene {
-    constructor() {
-        super('TestScene');
-    }
-
-    create() {
-        this.add.text(400, 250, 'JOGO MUSICAL', {
-            fontSize: '48px',
-            color: '#ffffff',
-            fontStyle: 'bold'
-        }).setOrigin(0.5);
-
-        this.add.text(400, 320, 'Nosso jogo está funcionando!', {
-            fontSize: '22px',
-            color: '#b49e69'
-        }).setOrigin(0.5);
-    }
-}
+import { COLORS, FONT_NAME, GAME_HEIGHT, GAME_WIDTH, toCss } from './config/constants.js';
+import MenuScene from './scenes/MenuScene.js';
+import GarageScene from './scenes/GarageScene.js';
 
 const config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
     parent: 'game-container',
-    backgroundColor: '#252525',
-    scene: [TestScene],
+    backgroundColor: toCss(COLORS.SKY_BANDS[0]),
+    scene: [MenuScene, GarageScene],
     pixelArt: true,
     scale: {
         mode: Phaser.Scale.FIT,
@@ -34,4 +17,20 @@ const config = {
     }
 };
 
-new Phaser.Game(config);
+// O Phaser mede o texto ao criá-lo, então a fonte precisa estar pronta antes.
+// Se a internet cair (ou o Google Fonts demorar), seguimos com a fonte
+// alternativa definida em FONT_FAMILY, sem travar o jogo.
+async function waitForFont(timeoutMs = 2500) {
+    if (!document.fonts) return;
+
+    const load = document.fonts.load(`16px "${FONT_NAME}"`).catch(() => {});
+    const timeout = new Promise((resolve) => setTimeout(resolve, timeoutMs));
+    await Promise.race([load, timeout]);
+}
+
+waitForFont().then(() => {
+    const game = new Phaser.Game(config);
+
+    // Facilita inspecionar o jogo pelo console durante o desenvolvimento.
+    if (import.meta.env.DEV) window.game = game;
+});
