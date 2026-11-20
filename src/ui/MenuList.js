@@ -1,18 +1,42 @@
 import { COLORS, DEPTH, FONT_FAMILY, toCss } from '../config/constants.js';
 
 // Menu vertical reutilizável com navegação por teclado (↑/↓, W/S, Enter/Espaço)
-// e mouse (hover seleciona, clique confirma). Itens desativados são pulados
-// pelo teclado e mostram a dica "EM BREVE".
+// e mouse (hover seleciona, clique confirma).
 //
-// items: [{ label, enabled = true, onSelect }]
+// items: [{ label, enabled = true, hint, onSelect }]
+//  - enabled: false  → item cinza, pulado pelo teclado, com a dica "EM BREVE".
+//  - hint: texto pequeno ao lado do rótulo (ex.: "EM BREVE") em itens selecionáveis.
+//
+// Opções: align ('center' | 'left'; em 'left', x é o início do texto), zoneWidth
+// (largura da área clicável), hintFontSize e onChange(index), chamado quando a
+// seleção muda (e uma vez no início).
 export default class MenuList {
-    constructor(scene, { x, y, spacing = 52, fontSize = 24, items }) {
+    constructor(
+        scene,
+        {
+            x,
+            y,
+            spacing = 52,
+            fontSize = 24,
+            align = 'center',
+            zoneWidth = 460,
+            hintFontSize = 12,
+            onChange,
+            items
+        }
+    ) {
         this.scene = scene;
         this.items = items.map((item) => ({ enabled: true, ...item }));
         this.locked = false;
         this.selectedIndex = this.items.findIndex((item) => item.enabled);
 
-        this.labels = this.items.map((item, i) => this.createItem(item, i, x, y + i * spacing, fontSize));
+        this.fontSize = fontSize;
+        this.alignLeft = align === 'left';
+        this.zoneWidth = zoneWidth;
+        this.hintFontSize = hintFontSize;
+        this.onChange = onChange;
+
+        this.labels = this.items.map((item, i) => this.createItem(item, i, x, y + i * spacing));
 
         this.cursor = scene.add
             .text(0, 0, '>', {
@@ -33,24 +57,28 @@ export default class MenuList {
 
         this.bindKeyboard();
         this.refresh();
+        this.onChange?.(this.selectedIndex);
     }
 
-    createItem(item, index, x, y, fontSize) {
+    createItem(item, index, x, y) {
         const label = this.scene.add
             .text(x, y, item.label, {
                 fontFamily: FONT_FAMILY,
-                fontSize: `${fontSize}px`,
+                fontSize: `${this.fontSize}px`,
                 color: toCss(COLORS.WHITE)
             })
-            .setOrigin(0.5)
+            .setOrigin(this.alignLeft ? 0 : 0.5, 0.5)
             .setDepth(DEPTH.UI);
 
-        if (!item.enabled) {
-            label.setColor(toCss(COLORS.GREY));
+        if (!item.enabled) label.setColor(toCss(COLORS.GREY));
+
+        const hint = item.hint ?? (item.enabled ? null : 'EM BREVE');
+        if (hint) {
+            const labelWidth = this.alignLeft ? label.width : label.width / 2;
             this.scene.add
-                .text(x + label.width / 2 + 16, y, 'EM BREVE', {
+                .text(x + labelWidth + 16, y, hint, {
                     fontFamily: FONT_FAMILY,
-                    fontSize: '12px',
+                    fontSize: `${this.hintFontSize}px`,
                     color: toCss(COLORS.GREY)
                 })
                 .setOrigin(0, 0.5)
@@ -58,8 +86,9 @@ export default class MenuList {
         }
 
         // Área clicável mais larga que o texto, para facilitar o mouse.
+        const zoneX = this.alignLeft ? x - 28 + this.zoneWidth / 2 : x;
         const hitArea = this.scene.add
-            .zone(x, y, 460, fontSize + 24)
+            .zone(zoneX, y, this.zoneWidth, this.fontSize + 24)
             .setInteractive({ useHandCursor: item.enabled });
 
         hitArea.on('pointerover', () => {
@@ -107,6 +136,7 @@ export default class MenuList {
         if (index === this.selectedIndex) return;
         this.selectedIndex = index;
         this.refresh();
+        this.onChange?.(index);
     }
 
     activate() {
@@ -130,7 +160,8 @@ export default class MenuList {
         });
 
         const current = this.labels[this.selectedIndex];
-        this.cursor.setPosition(current.x - current.width / 2 - 32, current.y);
+        const cursorOffset = this.alignLeft ? 24 : current.width / 2 + 32;
+        this.cursor.setPosition(current.x - cursorOffset, current.y);
     }
 
     shake(target) {

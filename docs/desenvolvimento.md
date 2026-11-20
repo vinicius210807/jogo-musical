@@ -1,5 +1,39 @@
 # Diário de desenvolvimento
 
+## Garagem como ambiente principal (GarageScene)
+
+**O que foi feito**
+
+- A garagem provisória virou um ambiente de gerenciamento: cenário de garagem improvisada
+  (parede de tijolos, piso de madeira, porta de enrolar suspensa com a noite lá fora,
+  bandeirinhas, pôsteres, amplificadores, caixas de papelão, monitor de palco e tapete surrado),
+  com lâmpada pelada balançando, poeira na luz e LED do amplificador piscando.
+- O músico da carreira escolhida aparece sobre o tapete (mesma textura da `CareerScene`, em
+  escala 5x, já com o instrumento no sprite), com uma plaquinha com o nome e o instrumento.
+- HUD no topo: botão "< MENU", título e contadores de DINHEIRO (R$) e FAMA, ambos começando em 0.
+- Menu da garagem: TOCAR, EQUIPAMENTOS, CONTRATAR e STATUS, com a descrição da opção
+  selecionada. Navegação por teclado (↑/↓, W/S, Enter/Espaço) e mouse (hover e clique).
+  As opções são só interface: ao ativá-las aparece um aviso ("EM BREVE!"); TOCAR fica
+  disponível visualmente, mas avisa que o minigame ainda não existe.
+- ESC (ou o botão "< MENU") volta ao menu inicial, como antes. A carreira continua guardada, então
+  "NOVO JOGO" abre a seleção com ela já marcada.
+- Se a garagem for aberta sem carreira escolhida, a plaquinha mostra "SEM CARREIRA".
+
+**Organização**
+
+- `src/ui/GarageRoom.js` cenário: imagem estática 192x108 (ampliada 5x, casando com o
+  personagem) desenhada por código + animações de ambiente.
+- `src/ui/PlayerHud.js`, `src/ui/icons.js` (moeda e estrela), `src/ui/Toast.js` componentes novos.
+- `src/data/garageOptions.js` opções do menu; `src/systems/ProgressSystem.js` leitura de
+  dinheiro e fama (por enquanto só os valores iniciais).
+- `MenuList` ganhou alinhamento à esquerda, dicas por item (`hint`) e o callback `onChange`;
+  `PixelButton` ganhou `fontSize`. O comportamento usado pelo menu inicial não mudou.
+
+**Ainda não implementado**
+
+- Minigame musical (TOCAR), loja de equipamentos, contratação de integrantes, tela de status,
+  ganho/gasto de dinheiro e fama e qualquer forma de salvar o progresso.
+
 ## Seleção de carreira (CareerScene)
 
 **O que foi feito**

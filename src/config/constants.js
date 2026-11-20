@@ -34,10 +34,14 @@ export const toCss = (hex) => `#${hex.toString(16).padStart(6, '0')}`;
 // Ordem de desenho: quanto maior, mais na frente.
 export const DEPTH = {
     SKY: 0,
+    ROOM: 0,
     STARS: 1,
     SPOTLIGHTS: 2,
     LANES: 3,
+    PROPS: 3,
     NOTES: 4,
     STAGE: 5,
+    CHARACTER: 5,
+    LIGHT: 6,
     UI: 10
 };

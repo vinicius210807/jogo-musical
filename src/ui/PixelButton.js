@@ -6,7 +6,10 @@ const HOVER_FILL = 0x2a1650;
 // Botão retrô clicável: caixa com borda colorida e sombra deslocada.
 // `press()` também pode ser chamado pelo teclado para dar o mesmo efeito do clique.
 export default class PixelButton {
-    constructor(scene, { x, y, width = 240, height = 52, label, color = COLORS.YELLOW, onClick }) {
+    constructor(
+        scene,
+        { x, y, width = 240, height = 52, fontSize = 16, label, color = COLORS.YELLOW, onClick }
+    ) {
         this.scene = scene;
         this.onClick = onClick;
         this.color = color;
@@ -25,7 +28,7 @@ export default class PixelButton {
         this.text = scene.add
             .text(x, y, label, {
                 fontFamily: FONT_FAMILY,
-                fontSize: '16px',
+                fontSize: `${fontSize}px`,
                 color: toCss(COLORS.WHITE)
             })
             .setOrigin(0.5)
