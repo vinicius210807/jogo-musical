@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { COLORS, FONT_NAME, GAME_HEIGHT, GAME_WIDTH, toCss } from './config/constants.js';
 import MenuScene from './scenes/MenuScene.js';
+import CareerScene from './scenes/CareerScene.js';
 import GarageScene from './scenes/GarageScene.js';
 
 const config = {
@@ -9,7 +10,7 @@ const config = {
     height: GAME_HEIGHT,
     parent: 'game-container',
     backgroundColor: toCss(COLORS.SKY_BANDS[0]),
-    scene: [MenuScene, GarageScene],
+    scene: [MenuScene, CareerScene, GarageScene],
     pixelArt: true,
     scale: {
         mode: Phaser.Scale.FIT,

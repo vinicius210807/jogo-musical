@@ -11,6 +11,7 @@ import {
 import { createNightSky, createSpotlights, createStage } from '../ui/NightStage.js';
 import { createFallingNotes } from '../ui/FallingNotes.js';
 import MenuList from '../ui/MenuList.js';
+import { fadeToScene } from '../ui/transitions.js';
 
 // Tela inicial: título animado, cenário retrô e menu principal.
 export default class MenuScene extends Phaser.Scene {
@@ -105,16 +106,8 @@ export default class MenuScene extends Phaser.Scene {
             .setDepth(DEPTH.UI);
     }
 
-    // Fade para preto e só então troca de cena.
+    // Novo jogo começa pela escolha da carreira.
     startNewGame() {
-        if (this.transitioning) return;
-        this.transitioning = true;
-        this.menu.lock();
-
-        const camera = this.cameras.main;
-        camera.fadeOut(500, 0, 0, 0);
-        camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-            this.scene.start(SCENE_KEYS.GARAGE);
-        });
+        if (fadeToScene(this, SCENE_KEYS.CAREER)) this.menu.lock();
     }
 }

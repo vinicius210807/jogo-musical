@@ -1,5 +1,32 @@
 # Diário de desenvolvimento
 
+## Seleção de carreira (CareerScene)
+
+**O que foi feito**
+
+- Nova cena `CareerScene` ("ESCOLHA SUA CARREIRA") com quatro cards em grade 2x2:
+  guitarrista, cantor, baterista e baixista. Cada card mostra o personagem em pixel art,
+  o nome da carreira, o instrumento e uma descrição curta.
+- Card selecionado: borda e brilho pulsante na cor da carreira, fundo mais claro e personagem
+  "respirando". Os demais ficam escurecidos.
+- Interação: clique no card seleciona; setas (ou WASD) navegam pela grade; Enter confirma;
+  ESC volta ao menu. Botões CONFIRMAR e VOLTAR com o mesmo efeito do teclado.
+  Ao voltar para a tela, a carreira já escolhida vem marcada.
+- Fluxo: `MenuScene` (NOVO JOGO) → `CareerScene` → `GarageScene`.
+- A carreira escolhida é gravada no `registry` do Phaser por `CareerSystem` (`setCareer`/`getCareer`).
+  A garagem provisória mostra o personagem e "CARREIRA: <nome>" para comprovar que o dado chegou.
+- Personagens PROVISÓRIOS de 32x32, desenhados por código (`src/ui/pixelArt.js` +
+  `src/ui/characters.js`), sem imagens externas. Para usar arte original, basta carregar uma
+  imagem com a chave `character-<id>` (ver `characterTextureKey`) e remover a função de desenho.
+
+**Organização**
+
+- `src/data/careers.js` dados das carreiras (id, nome, instrumento, descrição, cor).
+- `src/systems/CareerSystem.js` guarda e lê a carreira escolhida.
+- `src/ui/CareerCard.js`, `src/ui/PixelButton.js` componentes novos.
+- `src/ui/transitions.js` `fadeToScene`, que substitui o código de fade que estava repetido
+  em `MenuScene` e `GarageScene`.
+
 ## Tela inicial (MenuScene)
 
 **O que foi feito**

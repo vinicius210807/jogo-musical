@@ -10,6 +10,7 @@ export const FONT_FAMILY = `"${FONT_NAME}", "Courier New", Courier, monospace`;
 
 export const SCENE_KEYS = {
     MENU: 'MenuScene',
+    CAREER: 'CareerScene',
     GARAGE: 'GarageScene'
 };
 
