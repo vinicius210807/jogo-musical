@@ -8,6 +8,8 @@ import { RHYTHM } from '../config/constants.js';
 // tempo atual da música (ms), então o áudio fica alinhado com o SongClock.
 
 const HIT_NOTES = ['A4', 'C5', 'E5', 'G5'];
+// Volume dos sons de acerto: 60% do original (redução de 40%). Não afeta música nem MISS.
+const HIT_VOLUME = 0.6;
 const SEMITONES = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
 
 function noteToFreq(name) {
@@ -16,6 +18,51 @@ function noteToFreq(name) {
     const midi = 12 * (Number(octave) + 1) + semitone;
     return 440 * 2 ** ((midi - 69) / 12);
 }
+
+// Padrões de bateria e baixo, chamados uma vez por tempo (b = número do tempo desde o início).
+// O padrão "rock" e o baixo "pulse" são os da música original.
+const DRUM_PATTERNS = {
+    rock(audio, b, at) {
+        audio.kick(at(b));
+        if (b % 2 === 1) audio.snare(at(b));
+        audio.hat(at(b + 0.5));
+    },
+    // Synthwave: bumbo em todos os tempos, palma nos tempos 2 e 4 e chimbal no contratempo.
+    synthwave(audio, b, at) {
+        audio.kick(at(b));
+        if (b % 2 === 1) {
+            audio.noiseBurst(at(b), 0.16, 0.22, 1800);
+            audio.tone(260, 'triangle', at(b), 0.06, 0.08);
+        }
+        audio.hat(at(b + 0.5));
+    },
+    // Rock acelerado: bumbo duplo, caixa nos tempos 2 e 4, chimbal em colcheias e prato a cada 4 compassos.
+    fast(audio, b, at) {
+        audio.kick(at(b));
+        if (b % 2 === 0) audio.kick(at(b + 0.5));
+        if (b % 2 === 1) audio.snare(at(b));
+        audio.hat(at(b));
+        audio.hat(at(b + 0.5));
+        if (b % 16 === 0) audio.noiseBurst(at(b), 0.5, 0.18, 5000);
+    }
+};
+
+const BASS_PATTERNS = {
+    pulse({ b, at, beat, root, wave, volume = 0.1 }) {
+        this.tone(root, wave, at(b), beat * 0.4, volume);
+        this.tone(b % 2 ? root * 2 : root, wave, at(b + 0.5), beat * 0.4, volume * 0.8);
+    },
+    eighths({ b, at, beat, root, wave, volume = 0.1 }) {
+        this.tone(root, wave, at(b), beat * 0.45, volume);
+        this.tone(root, wave, at(b + 0.5), beat * 0.45, volume * 0.8);
+    },
+    // Colcheia + duas semicolcheias por tempo.
+    gallop({ b, at, beat, root, wave, volume = 0.1 }) {
+        this.tone(root, wave, at(b), beat * 0.4, volume);
+        this.tone(root, wave, at(b + 0.5), beat * 0.2, volume * 0.85);
+        this.tone(root, wave, at(b + 0.75), beat * 0.2, volume * 0.85);
+    }
+};
 
 export default class SongAudio {
     constructor(scene) {
@@ -67,24 +114,51 @@ export default class SongAudio {
         return true;
     }
 
+    // Agenda contagem, bateria, baixo e (se a música tiver) acordes e melodia, tudo a partir
+    // do arranjo `song.audio`. A lógica é a mesma para qualquer música.
     scheduleBacking(song) {
         const beat = 60 / song.bpm;
         const totalBeats = song.bars.length * song.beatsPerBar;
         const at = (beatPosition) => this.zero + beatPosition * beat;
+        const { drums, bass, pad, lead } = song.audio;
 
         for (let b = -RHYTHM.LEAD_IN_BEATS; b < 0; b++) {
             this.tone(b === -RHYTHM.LEAD_IN_BEATS ? 2000 : 1400, 'square', at(b), 0.05, 0.12);
         }
 
         for (let b = 0; b < totalBeats; b++) {
-            this.kick(at(b));
-            if (b % 2 === 1) this.snare(at(b));
-            this.hat(at(b + 0.5));
-
-            const root = noteToFreq(song.bassRoots[Math.floor(b / song.beatsPerBar) % song.bassRoots.length]);
-            this.tone(root, 'square', at(b), beat * 0.4, 0.1);
-            this.tone(b % 2 ? root * 2 : root, 'square', at(b + 0.5), beat * 0.4, 0.08);
+            DRUM_PATTERNS[drums](this, b, at);
+            const barIndex = Math.floor(b / song.beatsPerBar);
+            const root = noteToFreq(bass.roots[barIndex % bass.roots.length]);
+            BASS_PATTERNS[bass.pattern].call(this, { b, at, beat, root, wave: bass.wave, volume: bass.volume });
         }
+
+        if (pad) this.schedulePad(song, pad, at, beat);
+        if (lead) this.scheduleLead(song, lead, at, beat);
+    }
+
+    // Um acorde sustentado por compasso (repete em ciclo).
+    schedulePad(song, pad, at, beat) {
+        song.bars.forEach((_, barIndex) => {
+            const chord = pad.chords[barIndex % pad.chords.length];
+            const start = at(barIndex * song.beatsPerBar);
+            chord.forEach((name) => this.tone(noteToFreq(name), pad.wave, start, beat * song.beatsPerBar * 0.95, pad.volume));
+        });
+    }
+
+    // Melodia por passos de semicolcheia (16 por compasso; repete em ciclo).
+    scheduleLead(song, lead, at, beat) {
+        const stepBeats = song.beatsPerBar / 16;
+        song.bars.forEach((_, barIndex) => {
+            const tokens = lead.bars[barIndex % lead.bars.length].trim().split(/\s+/);
+            tokens.forEach((name, step) => {
+                if (name === '.') return;
+                const when = at(barIndex * song.beatsPerBar + step * stepBeats);
+                const freq = noteToFreq(name);
+                this.tone(freq, lead.wave, when, beat * 0.9, lead.volume);
+                if (lead.fifth) this.tone(freq * 1.5, lead.wave, when, beat * 0.9, lead.volume * 0.8);
+            });
+        });
     }
 
     // Som da nota acertada: cada pista toca uma nota da escala (lá menor pentatônica).
@@ -94,8 +168,8 @@ export default class SongAudio {
         const freq = noteToFreq(HIT_NOTES[lane]);
         const perfect = judgment === 'PERFECT';
 
-        this.tone(freq, 'square', now, 0.16, perfect ? 0.2 : 0.12);
-        if (perfect) this.tone(freq * 2, 'triangle', now, 0.2, 0.12);
+        this.tone(freq, 'square', now, 0.16, (perfect ? 0.2 : 0.12) * HIT_VOLUME);
+        if (perfect) this.tone(freq * 2, 'triangle', now, 0.2, 0.12 * HIT_VOLUME);
     }
 
     playMiss() {

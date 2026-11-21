@@ -26,7 +26,7 @@ const MENU_SPACING = 56;
 
 // Garagem: ambiente principal do jogador. Mostra o músico e o instrumento da carreira
 // escolhida, dinheiro e fama, e o menu TOCAR / EQUIPAMENTOS / CONTRATAR / STATUS.
-// TOCAR abre o minigame; as demais opções ainda são só interface (mostram "EM BREVE").
+// TOCAR abre a seleção de músicas; as demais opções ainda são só interface (mostram "EM BREVE").
 export default class GarageScene extends Phaser.Scene {
     constructor() {
         super(SCENE_KEYS.GARAGE);
@@ -175,7 +175,7 @@ export default class GarageScene extends Phaser.Scene {
             .setDepth(DEPTH.UI);
     }
 
-    // Abre outra cena (ex.: o minigame) com o fade padrão, travando o menu durante a troca.
+    // Abre outra cena (ex.: a seleção de músicas) com o fade padrão, travando o menu durante a troca.
     openScene(sceneKey) {
         if (fadeToScene(this, sceneKey)) this.menu.lock();
     }

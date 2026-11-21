@@ -1,42 +1,22 @@
 // Músicas do minigame. Dados puros (sem Phaser): a cena e os testes só consomem `buildChart`.
 //
+// Cada música fica em seu próprio arquivo em `songs/` (metadados, chart e arranjo sintetizado)
+// e é registrada na lista SONGS abaixo. Para adicionar uma faixa, crie o arquivo e inclua-o ali:
+// a cena do minigame, a seleção de músicas e os resultados não precisam mudar.
+//
 // Cada compasso de `bars` é uma string de 16 passos (semicolcheias), um por posição:
 //   '.'  = sem nota   |   '1' a '4' = nota na pista correspondente (D, F, J, K).
 // Os tempos das notas saem do BPM, então mudar o andamento não exige mexer nas notas.
 //
 // `audioKey` / `audioUrl` (opcionais): faixa de áudio real. Sem elas o jogo usa a trilha
 // sintetizada de SongAudio (bateria + baixo gerados por código, sem direitos autorais).
+import lastShow from './songs/lastShow.js';
+import neonNights from './songs/neonNights.js';
+import riffDaGaragem from './songs/riffDaGaragem.js';
 
 export const STEPS_PER_BAR = 16;
 
-export const SONGS = [
-    {
-        id: 'riff-da-garagem',
-        title: 'RIFF DA GARAGEM',
-        bpm: 120,
-        beatsPerBar: 4,
-        // Nota-raiz do baixo em cada compasso (repete em ciclo).
-        bassRoots: ['A2', 'A2', 'F2', 'G2'],
-        bars: [
-            '1...2...3...4...',
-            '4...3...2...1...',
-            '1.1.2.2.3.3.4.4.',
-            '4.4.3.3.2.2.1.1.',
-            '1..2..3..4..2.3.',
-            '4..3..2..1..3.2.',
-            '1.2.3.4.4.3.2.1.',
-            '1.3.2.4.1.3.2.4.',
-            '1.1.2.3.4.4.3.2.',
-            '1.2.3.4.3.2.1.2.',
-            '1...3...2...4...',
-            '2.3.2.3.1.4.1.4.',
-            '1.2.3.4.1.2.3.4.',
-            '4.3.2.1.4.3.2.1.',
-            '1.23.4.1.23.4.1.',
-            '1.2.3.4.1...4...'
-        ]
-    }
-];
+export const SONGS = [riffDaGaragem, neonNights, lastShow];
 
 export const DEFAULT_SONG = SONGS[0];
 
@@ -69,4 +49,14 @@ export function buildChart(song) {
     });
 
     return notes;
+}
+
+export const DIFFICULTY_LABELS = { 1: 'FÁCIL', 2: 'MÉDIO', 3: 'DIFÍCIL' };
+
+export const getSongById = (id) => SONGS.find((song) => song.id === id);
+
+// mm:ss de uma duração em ms.
+export function formatDuration(ms) {
+    const total = Math.round(ms / 1000);
+    return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }

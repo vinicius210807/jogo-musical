@@ -8,7 +8,7 @@ import {
 } from '../config/constants.js';
 
 // "Estrada" do minigame: as quatro pistas, a linha de acerto, os receptores com a tecla
-// de cada pista e a barra de progresso da música.
+// de cada pista.
 export const HIGHWAY = { x: 300, laneWidth: 90 };
 const LANES = RHYTHM.LANE_COLORS.length;
 const WIDTH = HIGHWAY.laneWidth * LANES;
@@ -80,16 +80,6 @@ export default class Highway {
 
             return fill;
         });
-
-        // Barra de progresso no topo da estrada.
-        scene.add
-            .rectangle(HIGHWAY.x, 0, WIDTH, 6, 0x120c24)
-            .setOrigin(0)
-            .setDepth(DEPTH.STAGE);
-        this.progress = scene.add
-            .rectangle(HIGHWAY.x, 0, 0, 6, COLORS.CYAN)
-            .setOrigin(0)
-            .setDepth(DEPTH.STAGE);
     }
 
     // Tecla apertada: acende o receptor e a pista.
@@ -106,15 +96,11 @@ export default class Highway {
         this.receptors[lane].setFillStyle(RHYTHM.LANE_COLORS[lane], 0);
     }
 
-    // Avaliação MISS: a pista pisca em vermelho.
-    flashMiss(lane, color) {
+    // Pulso de luz da pista que recebeu uma avaliação (cor depende da avaliação).
+    pulseJudgment(lane, color) {
         const flash = this.flashes[lane];
         this.scene.tweens.killTweensOf(flash);
-        flash.setAlpha(1).setFillStyle(color, 0.35);
-        this.scene.tweens.add({ targets: flash, alpha: 0, duration: 260 });
-    }
-
-    setProgress(ratio) {
-        this.progress.width = WIDTH * Math.min(1, Math.max(0, ratio));
+        flash.setAlpha(1).setFillStyle(color, 0.3);
+        this.scene.tweens.add({ targets: flash, alpha: 0, duration: 220, ease: 'Quad.easeOut' });
     }
 }

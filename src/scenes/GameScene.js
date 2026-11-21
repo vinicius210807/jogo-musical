@@ -4,13 +4,15 @@ import {
     DEPTH,
     FONT_FAMILY,
     JUDGMENT_COLORS,
+    LANE_FEEDBACK_COLORS,
     RHYTHM,
     SCENE_KEYS,
     toCss
 } from '../config/constants.js';
-import { DEFAULT_SONG, beatDurationMs, buildChart } from '../data/songs.js';
+import { beatDurationMs, buildChart, songDurationMs } from '../data/songs.js';
 import { getCareer } from '../systems/CareerSystem.js';
 import NoteJudge, { JUDGMENTS } from '../systems/JudgmentSystem.js';
+import { getSelectedSong } from '../systems/SongSelection.js';
 import ScoreSystem from '../systems/ScoreSystem.js';
 import SongAudio from '../systems/SongAudio.js';
 import SongClock from '../systems/SongClock.js';
@@ -19,6 +21,7 @@ import Highway, { highwayCenterX, laneX } from '../ui/Highway.js';
 import { burst, ring } from '../ui/HitEffects.js';
 import { NOTE_SCALE, ensureNoteTextures, noteTextureKey } from '../ui/NoteSprites.js';
 import { createNightSky, createSpotlights } from '../ui/NightStage.js';
+import ProgressBar from '../ui/ProgressBar.js';
 import ResultsPanel from '../ui/ResultsPanel.js';
 import RhythmHud from '../ui/RhythmHud.js';
 import Toast from '../ui/Toast.js';
@@ -43,7 +46,7 @@ export default class GameScene extends Phaser.Scene {
         this.results = null;
         this.cameras.main.fadeIn(400, 0, 0, 0);
 
-        this.song = DEFAULT_SONG;
+        this.song = getSelectedSong(this); // o replay reaproveita a mesma música e o mesmo chart
         this.beatMs = beatDurationMs(this.song);
         this.chart = buildChart(this.song);
         this.lastNoteTime = this.chart[this.chart.length - 1].time;
@@ -61,6 +64,7 @@ export default class GameScene extends Phaser.Scene {
         createSpotlights(this);
 
         this.highway = new Highway(this);
+        this.progressBar = new ProgressBar(this, songDurationMs(this.song));
         this.hud = new RhythmHud(this, { song: this.song, career: getCareer(this) });
         this.judgmentPopup = new Toast(this, {
             x: highwayCenterX,
@@ -129,7 +133,7 @@ export default class GameScene extends Phaser.Scene {
 
         this.judge.expire(songTime).forEach((result) => this.handleJudgment(result));
         this.moveNotes(songTime);
-        this.highway.setProgress(songTime / this.songEnd);
+        this.progressBar.update(songTime);
 
         if (this.judge.finished && songTime >= this.songEnd) this.showResults();
     }
@@ -180,6 +184,7 @@ export default class GameScene extends Phaser.Scene {
         this.hud.pulseCombo(judgment === JUDGMENTS.MISS);
 
         this.judgmentPopup.show(judgment === JUDGMENTS.MISS ? 'MISS' : `${judgment}!`, JUDGMENT_COLORS[judgment]);
+        this.highway.pulseJudgment(note.lane, LANE_FEEDBACK_COLORS[judgment]);
         this.playNoteEffect(note, judgment);
 
         if (judgment === JUDGMENTS.MISS) {
@@ -198,7 +203,6 @@ export default class GameScene extends Phaser.Scene {
         const laneColor = LANE_COLORS[note.lane];
 
         if (judgment === JUDGMENTS.MISS) {
-            this.highway.flashMiss(note.lane, JUDGMENT_COLORS.MISS);
             if (entry) {
                 // A nota perdida escurece e continua caindo até sumir.
                 entry.sprite.setTint(0x555566);

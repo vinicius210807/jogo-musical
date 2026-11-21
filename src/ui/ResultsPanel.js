@@ -7,10 +7,11 @@ import {
     JUDGMENT_COLORS,
     toCss
 } from '../config/constants.js';
+import { DIFFICULTY_LABELS } from '../data/songs.js';
 import MenuList from './MenuList.js';
 
 const OVERLAY_DEPTH = DEPTH.UI + 1;
-const PANEL = { width: 560, height: 440 };
+const PANEL = { width: 560, height: 500 };
 
 // Nota final pela precisão (pontos feitos / pontos possíveis).
 export function rankFor(accuracy) {
@@ -45,7 +46,8 @@ export default class ResultsPanel {
                 .setDepth(OVERLAY_DEPTH + 1);
 
         text(centerX, top + 38, 'FIM DA MÚSICA', 28, COLORS.YELLOW).setShadow(4, 4, toCss(COLORS.MAGENTA), 0, false, true);
-        text(centerX, top + 76, song.title, 12, COLORS.CYAN);
+        text(centerX, top + 72, song.title, 14, COLORS.CYAN);
+        text(centerX, top + 94, `${song.bpm} BPM  -  ${DIFFICULTY_LABELS[song.difficulty]}`, 10, COLORS.GREY);
 
         const accuracy = score.accuracy;
         const rows = [
@@ -59,14 +61,14 @@ export default class ResultsPanel {
         ];
 
         rows.forEach(([label, value, color], i) => {
-            const y = top + 118 + i * 32;
+            const y = top + 138 + i * 32;
             text(centerX - 230, y, label, 16, color, [0, 0.5]);
             text(centerX + 230, y, value, 16, color, [1, 0.5]);
         });
 
         this.menu = new MenuList(scene, {
             x: centerX,
-            y: top + 372,
+            y: top + 432,
             spacing: 46,
             fontSize: 20,
             depth: OVERLAY_DEPTH + 1,

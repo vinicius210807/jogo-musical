@@ -8,7 +8,7 @@ export const GARAGE_OPTIONS = [
         label: 'TOCAR',
         soon: false,
         description: 'Suba no palco e toque no ritmo. Acerte as notas para fazer pontos.',
-        target: SCENE_KEYS.GAME
+        target: SCENE_KEYS.SONG_SELECT
     },
     {
         id: 'equipment',

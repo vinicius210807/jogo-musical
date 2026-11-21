@@ -12,6 +12,7 @@ export const SCENE_KEYS = {
     MENU: 'MenuScene',
     CAREER: 'CareerScene',
     GARAGE: 'GarageScene',
+    SONG_SELECT: 'SongSelectScene',
     GAME: 'GameScene'
 };
 
@@ -44,6 +45,13 @@ export const RHYTHM = {
 export const JUDGMENT_COLORS = {
     PERFECT: COLORS.YELLOW,
     GOOD: 0x35d56a,
+    MISS: 0xff4d4d
+};
+
+// Cor do pulso de luz da pista a cada avaliação.
+export const LANE_FEEDBACK_COLORS = {
+    PERFECT: COLORS.CYAN,
+    GOOD: COLORS.YELLOW,
     MISS: 0xff4d4d
 };
 
