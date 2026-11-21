@@ -27,8 +27,8 @@ export const GARAGE_OPTIONS = [
     {
         id: 'status',
         label: 'STATUS',
-        soon: true,
-        description: 'Veja as habilidades, o dinheiro e a fama da sua carreira.',
-        message: 'EM BREVE!'
+        soon: false,
+        description: 'Veja o dinheiro, a fama, os recordes e o histórico da sua carreira.',
+        target: SCENE_KEYS.STATUS
     }
 ];

@@ -4,6 +4,7 @@ import MenuScene from './scenes/MenuScene.js';
 import CareerScene from './scenes/CareerScene.js';
 import GarageScene from './scenes/GarageScene.js';
 import SongSelectScene from './scenes/SongSelectScene.js';
+import StatusScene from './scenes/StatusScene.js';
 import GameScene from './scenes/GameScene.js';
 
 const config = {
@@ -12,7 +13,7 @@ const config = {
     height: GAME_HEIGHT,
     parent: 'game-container',
     backgroundColor: toCss(COLORS.SKY_BANDS[0]),
-    scene: [MenuScene, CareerScene, GarageScene, SongSelectScene, GameScene],
+    scene: [MenuScene, CareerScene, GarageScene, SongSelectScene, StatusScene, GameScene],
     pixelArt: true,
     scale: {
         mode: Phaser.Scale.FIT,

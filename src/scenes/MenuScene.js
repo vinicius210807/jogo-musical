@@ -8,6 +8,7 @@ import {
     SCENE_KEYS,
     toCss
 } from '../config/constants.js';
+import { getCareerProgress } from '../systems/CareerProgress.js';
 import { createNightSky, createSpotlights, createStage } from '../ui/NightStage.js';
 import { createFallingNotes } from '../ui/FallingNotes.js';
 import MenuList from '../ui/MenuList.js';
@@ -80,7 +81,8 @@ export default class MenuScene extends Phaser.Scene {
             spacing: 52,
             items: [
                 { label: 'NOVO JOGO', onSelect: () => this.startNewGame() },
-                { label: 'CONTINUAR', enabled: false },
+                // Continuar fica disponível quando já existe uma carreira salva neste navegador.
+                { label: 'CONTINUAR', enabled: getCareerProgress().hasCareer, onSelect: () => this.continueGame() },
                 { label: 'OPÇÕES', enabled: false }
             ]
         });
@@ -104,6 +106,11 @@ export default class MenuScene extends Phaser.Scene {
             })
             .setOrigin(1)
             .setDepth(DEPTH.UI);
+    }
+
+    // Continuar leva direto para a garagem da carreira salva.
+    continueGame() {
+        if (fadeToScene(this, SCENE_KEYS.GARAGE)) this.menu.lock();
     }
 
     // Novo jogo começa pela escolha da carreira.

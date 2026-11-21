@@ -13,6 +13,7 @@ export const SCENE_KEYS = {
     CAREER: 'CareerScene',
     GARAGE: 'GarageScene',
     SONG_SELECT: 'SongSelectScene',
+    STATUS: 'StatusScene',
     GAME: 'GameScene'
 };
 

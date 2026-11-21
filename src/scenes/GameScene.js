@@ -12,6 +12,7 @@ import {
 import { beatDurationMs, buildChart, songDurationMs } from '../data/songs.js';
 import { getCareer } from '../systems/CareerSystem.js';
 import NoteJudge, { JUDGMENTS } from '../systems/JudgmentSystem.js';
+import { getCareerProgress } from '../systems/CareerProgress.js';
 import { getSelectedSong } from '../systems/SongSelection.js';
 import ScoreSystem from '../systems/ScoreSystem.js';
 import SongAudio from '../systems/SongAudio.js';
@@ -44,6 +45,8 @@ export default class GameScene extends Phaser.Scene {
         this.transitioning = false;
         this.finished = false;
         this.results = null;
+        // Identifica ESTA apresentação: garante que as recompensas sejam pagas uma única vez.
+        this.runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
         this.cameras.main.fadeIn(400, 0, 0, 0);
 
         this.song = getSelectedSong(this); // o replay reaproveita a mesma música e o mesmo chart
@@ -228,11 +231,22 @@ export default class GameScene extends Phaser.Scene {
     }
 
     showResults() {
+        if (this.finished) return;
         this.finished = true;
+
+        // Só chega aqui quando a música termina: sair com ESC não passa por este ponto, então
+        // abandonar a partida não rende dinheiro, fama nem histórico.
+        const reward = getCareerProgress().recordPerformance({
+            runId: this.runId,
+            song: this.song,
+            score: this.score,
+            totalNotes: this.chart.length
+        });
 
         this.results = new ResultsPanel(this, {
             song: this.song,
             score: this.score,
+            reward,
             onRetry: () => this.retry(),
             onExit: () => this.exitToGarage()
         });

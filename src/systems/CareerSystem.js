@@ -1,14 +1,14 @@
 import { getCareerById } from '../data/careers.js';
+import { getCareerProgress } from './CareerProgress.js';
 
-// Guarda a carreira escolhida no registry do Phaser, que é compartilhado por
-// todas as cenas e dura enquanto o jogo estiver aberto.
-const REGISTRY_KEY = 'career';
-
+// Carreira escolhida: guardada no salvamento local (ver CareerProgress), então continua
+// valendo depois de fechar e reabrir o navegador. O parâmetro `scene` é mantido para que
+// as cenas continuem chamando do mesmo jeito.
 export function setCareer(scene, careerId) {
-    scene.registry.set(REGISTRY_KEY, careerId);
+    getCareerProgress().setCareer(careerId);
 }
 
 // Retorna o objeto da carreira escolhida (ver src/data/careers.js) ou undefined.
 export function getCareer(scene) {
-    return getCareerById(scene.registry.get(REGISTRY_KEY));
+    return getCareerById(getCareerProgress().careerId);
 }

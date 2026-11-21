@@ -7,7 +7,7 @@ const BAR_HEIGHT = 40;
 // Barra superior da garagem: botão MENU, título da tela e os contadores de
 // dinheiro e fama do jogador.
 export default class PlayerHud {
-    constructor(scene, { title, money, fame, onBack }) {
+    constructor(scene, { title, money, fame, onBack, backLabel = '< MENU' }) {
         ensureIconTextures(scene);
 
         scene.add
@@ -25,7 +25,7 @@ export default class PlayerHud {
             width: 140,
             height: 28,
             fontSize: 12,
-            label: '< MENU',
+            label: backLabel,
             color: COLORS.CYAN,
             onClick: onBack
         });

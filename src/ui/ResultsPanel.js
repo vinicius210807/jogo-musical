@@ -12,6 +12,7 @@ import MenuList from './MenuList.js';
 
 const OVERLAY_DEPTH = DEPTH.UI + 1;
 const PANEL = { width: 560, height: 500 };
+const ROW_SPACING = 27;
 
 // Nota final pela precisão (pontos feitos / pontos possíveis).
 export function rankFor(accuracy) {
@@ -24,7 +25,7 @@ export function rankFor(accuracy) {
 // Tela de resultado, desenhada por cima da partida: pontuação, maior combo, acertos e
 // erros, mais as opções JOGAR NOVAMENTE e VOLTAR À GARAGEM.
 export default class ResultsPanel {
-    constructor(scene, { song, score, onRetry, onExit }) {
+    constructor(scene, { song, score, reward, onRetry, onExit }) {
         const centerX = GAME_WIDTH / 2;
         const top = (GAME_HEIGHT - PANEL.height) / 2;
 
@@ -46,8 +47,8 @@ export default class ResultsPanel {
                 .setDepth(OVERLAY_DEPTH + 1);
 
         text(centerX, top + 38, 'FIM DA MÚSICA', 28, COLORS.YELLOW).setShadow(4, 4, toCss(COLORS.MAGENTA), 0, false, true);
-        text(centerX, top + 72, song.title, 14, COLORS.CYAN);
-        text(centerX, top + 94, `${song.bpm} BPM  -  ${DIFFICULTY_LABELS[song.difficulty]}`, 10, COLORS.GREY);
+        text(centerX, top + 66, song.title, 14, COLORS.CYAN);
+        text(centerX, top + 86, `${song.bpm} BPM  -  ${DIFFICULTY_LABELS[song.difficulty]}`, 10, COLORS.GREY);
 
         const accuracy = score.accuracy;
         const rows = [
@@ -57,19 +58,27 @@ export default class ResultsPanel {
             ['GOOD', String(score.counts.GOOD), JUDGMENT_COLORS.GOOD],
             ['MISS', String(score.counts.MISS), JUDGMENT_COLORS.MISS],
             ['PRECISÃO', `${Math.round(accuracy)}%`, COLORS.WHITE],
-            ['NOTA', rankFor(accuracy), COLORS.YELLOW]
+            ['NOTA', rankFor(accuracy), COLORS.YELLOW],
+            ['DINHEIRO', `+R$ ${reward.entry.money}`, COLORS.CYAN],
+            ['FAMA', `+${reward.entry.fame}`, COLORS.MAGENTA]
         ];
 
         rows.forEach(([label, value, color], i) => {
-            const y = top + 138 + i * 32;
+            const y = top + 118 + i * ROW_SPACING;
             text(centerX - 230, y, label, 16, color, [0, 0.5]);
             text(centerX + 230, y, value, 16, color, [1, 0.5]);
         });
 
+        const { newRecords } = reward;
+        if (newRecords.score || newRecords.accuracy) {
+            const what = newRecords.score && newRecords.accuracy ? 'PONTUAÇÃO E PRECISÃO' : newRecords.score ? 'PONTUAÇÃO' : 'PRECISÃO';
+            text(centerX, top + 118 + rows.length * ROW_SPACING + 4, `NOVO RECORDE: ${what}!`, 12, COLORS.YELLOW);
+        }
+
         this.menu = new MenuList(scene, {
             x: centerX,
-            y: top + 432,
-            spacing: 46,
+            y: top + 424,
+            spacing: 42,
             fontSize: 20,
             depth: OVERLAY_DEPTH + 1,
             items: [
